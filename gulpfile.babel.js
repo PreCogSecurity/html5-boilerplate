@@ -23,6 +23,18 @@ const dirs = pkg['h5bp-configs'].directories;
 // | Helper tasks                                                      |
 // ---------------------------------------------------------------------
 
+/**
+ * Shared error logging helper for gulp tasks.
+ * Writes a structured JSON line to stderr so CI can capture it.
+ */
+function logError (taskName, err) {
+    console.error({
+        task: taskName,
+        message: err.message,
+        stack: err.stack
+    });
+}
+
 gulp.task('archive:create_archive_dir', () => {
     fs.mkdirSync(path.resolve(dirs.archive), '0755');
 });
@@ -38,8 +50,8 @@ gulp.task('archive:zip', (done) => {
     const output = fs.createWriteStream(archiveName);
 
     zip.on('error', (error) => {
-        done();
-        throw error;
+        logError('archive:zip', error);
+        done(error);
     });
 
     output.on('close', done);
